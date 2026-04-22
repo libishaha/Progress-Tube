@@ -118,3 +118,14 @@ def get_dashboard():
 
     stats["total_trophies"] = trophies["total"]
     return stats
+
+@app.get("/trophies")
+def get_trophies():
+    return db.query(
+        """
+            SELECT t.*, c.title
+            FROM trophies t JOIN courses c
+            ON c.id = t.course_id
+            ORDER BY t.awarded_at DESC
+        """
+    )
