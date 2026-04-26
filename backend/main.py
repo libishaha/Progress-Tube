@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 import database as db
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+import youtube_service as yt
 
 app = FastAPI(title="ProgressTube API")
 
@@ -14,11 +15,6 @@ app.add_middleware(
 
 class AddCourseRequest(BaseModel):
     youtube_url: str
-    thumbnail: str
-    title: str
-    total_duration_seconds: int = 0
-    total_videos: int = 1
-    type: str = 'video'
 
 class UpdateProgressRequest(BaseModel):
     watched_seconds: int
@@ -38,11 +34,35 @@ def get_courses():
 
 @app.post("/courses")
 def add_courses(req: AddCourseRequest):
+    try:
+        meta = yt.fetch_youtube_metadata(req.youtube_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"YouTube API error: {str(e)}")
+
     course_id = db.execute(
-        "INSERT INTO courses(youtube_url, thumbnail, title, total_duration_seconds, total_videos, type) VALUES (%s, %s, %s, %s, %s, %s)",
-        (req.youtube_url, req.thumbnail, req.title, req.total_duration_seconds, req.total_videos, req.type)
+        """INSERT INTO courses
+           (youtube_url, type, title, thumbnail, total_duration_seconds, total_videos)
+           VALUES (%s, %s, %s, %s, %s, %s)""",
+        (
+            req.youtube_url,
+            meta["type"],
+            meta["title"],
+            meta["thumbnail"],
+            meta["total_duration_seconds"],
+            meta["total_videos"],
+        )
     )
-    return {"message" : "Course added", "course_id" : course_id}
+    return {
+        "message": "Course added",
+        "course_id": course_id,
+        "title": meta["title"],
+        "thumbnail": meta["thumbnail"],
+        "total_duration_seconds": meta["total_duration_seconds"],
+        "total_videos": meta["total_videos"],
+        "type": meta["type"],
+    }
 
 @app.put("/courses/{course_id}/progress")
 def update_progress(course_id: int, req: UpdateProgressRequest):
