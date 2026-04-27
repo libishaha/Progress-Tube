@@ -44,14 +44,14 @@ def get_video_metadata(video_id):
 
     resp.raise_for_status()
 
-    items = resp.get("items", [])
+    items = resp.json().get("items", [])
     if not items:
         raise ValueError(f"No video id found for video id: {video_id}")
 
     item = items[0]
     duration = parse_duration(item["contentDetails"]["duration"])
     thumbnail = (
-        item["snipet"]["thumbnails"].get("high", {}).get("url") or
+        item["snippet"]["thumbnails"].get("high", {}).get("url") or
         item["snippet"]["thumbnails"].get("default", {}).get("url", {})
     )
 
@@ -64,14 +64,14 @@ def get_video_metadata(video_id):
     }
 
 def get_playlist_metadata(playlist_id):
-    pl_resp = requests.get(f"{BASE_URL}/playlist", params={
+    pl_resp = requests.get(f"{BASE_URL}/playlists", params={
         "key" : API_KEY,
         "id" : playlist_id,
         "part" : "snippet"
     })
 
     pl_resp.raise_for_status()
-    pl_items = pl_resp.json().get("itmems", [])
+    pl_items = pl_resp.json().get("items", [])
 
     if not pl_items:
         raise ValueError(f"No playlist found for id: {playlist_id}")
