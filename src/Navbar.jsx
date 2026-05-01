@@ -1,7 +1,7 @@
 export default function Navbar({ page, onNavigate }) {
   return (
     <nav style={styles.nav}>
-      <span style={styles.logo}>▶ ProgressTube</span>
+      <span style={styles.logo} onClick={() => onNavigate("dashboard")}>▶ ProgressTube</span>
       <div style={styles.links}>
         {["dashboard", "courses", "trophies"].map((p) => (
           <button
