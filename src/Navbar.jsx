@@ -1,21 +1,23 @@
-export default function Navbar({ page, onNavigate }) {
-  return (
+export default function Navbar({page, onNavigate}){
+  return(
     <nav style={styles.nav}>
-      <span style={styles.logo} onClick={() => onNavigate("dashboard")}>▶ ProgressTube</span>
+      <span style={styles.logo}>ProgressTube</span>
       <div style={styles.links}>
-        {["dashboard", "courses", "trophies"].map((p) => (
-          <button
-            key={p}
-            onClick={() => onNavigate(p)}
-            style={{
-              ...styles.link,
-              borderBottom: page === p ? "2px solid #F5C518" : "2px solid transparent",
-              color: page === p ? "#F5C518" : "#aaa",
-            }}
-          >
+        {
+          ["dashboard", "courses", "trophies"].map((p) => (
+            <button
+              key={p}
+              onClick={() => onNavigate(p)}
+              style={{
+                ...styles.link,
+                borderBottom: page === p ? "2px solid #F5C518" : "2px solid transparent",
+                color: page === p ? "#F5C518" : "#aaa",
+              }}
+            >
             {p.toUpperCase()}
-          </button>
-        ))}
+            </button>
+          ))
+        }
       </div>
     </nav>
   )
@@ -38,12 +40,15 @@ const styles = {
     color: "#F5C518",
     cursor: "pointer",
   },
-  links: { display: "flex", gap: "8px" },
+  links: {
+    display: "flex",
+    gap: "8px",
+  },
   link: {
     background: "none",
     border: "none",
     cursor: "pointer",
-    padding: "8px 14px",
+     padding: "8px 14px",
     fontFamily: "monospace",
     fontSize: "0.75rem",
     letterSpacing: "1px",
