@@ -19,10 +19,10 @@ export default function CourseCard({course, onDelete, onOpen}){
       <div style={styles.thumbWrap}>
         {
           thumbnail
-          ? <img src={thumbnail} alt={title} />
-          : <div> ▶ </div>
+          ? <img src={thumbnail} alt={title} style={styles.thumb} />
+          : <div style={styles.thumbPlaceHolder}> ▶ </div>
         }
-        <span>
+        <span style={styles.typeTag}>
           {
             type === "playlist"
             ? `${total_videos} videos`
@@ -31,28 +31,28 @@ export default function CourseCard({course, onDelete, onOpen}){
         </span>
       </div>
       
-      <div>
-        <p title={title}>{title}</p>
+      <div style={styles.body}>
+        <p style={styles.title} title={title}>{title}</p>
 
-        <span style={{color: statusColor, borderColor: statusColor}}>
+        <span style={{...styles.status, color: statusColor, borderColor: statusColor}}>
           {status.replace("_", " ").toUpperCase()}
         </span>
 
-        <div>
-          <div style={{width: `${completed_percentage}%`}}></div>
+        <div style={styles.barWrap}>
+          <div style={{...styles.barFill, width: `${completed_percentage}%`}}></div>
         </div>
 
-        <p>
+        <p style={styles.percent}>
           {completed_percentage}%
         </p>
 
-        <p>
+        <p style={styles.time}>
           {formatTime(watched_seconds)} / {formatTime(total_duration_seconds)}
         </p>
 
-        <div>
-          <button onClick={onOpen}>OPEN</button>
-          <button onClick={onDelete}>X</button>
+        <div style={styles.actions}>
+          <button style={styles.btnOpen} onClick={onOpen}>OPEN</button>
+          <button style={styles.btnDel} onClick={onDelete}>X</button>
         </div>
       </div>
     </div>
@@ -71,6 +71,119 @@ const styles = {
   },
 
   thumbWrap: {
-    position: "relative"
+    position: "relative",
+    aspectRatio: "16/9",
+    background: "#0D14A4"
+  },
+
+  thumb: {
+    width: "100%",
+    height: "100%", 
+    objectFit: "cover",
+    display: "block",
+  },
+
+  thumbPlaceHolder: {
+    width: "100%",
+    height: "100%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "2rem",
+    color: "#2E5FD9"
+  },
+
+  typeTag: {
+    position: "absolute",
+    bottom: 8,
+    left: 8,
+    background: "#7B1D1D",
+    color: "#FFF8E7",
+    fontSize: "0.6rem",
+    padding: "3px 8px",
+    FontFamily: "monospace",
+  },
+
+  body: {
+    padding: "14px 16px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+  },
+
+  title: {
+    FontFamily: "monospace",
+    fontWeight: "bold",
+    fontSize: "0.9rem",
+    color: "#FFF8E7",
+    overflow: "hidden",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    margin: 0,
+  },
+
+  status: {
+    FontFamily: "monospace",
+    fontSize: "0.55rem",
+    padding: "3px 8px",
+    border: "1px solid",
+    alignSelf: "flex-start",
+    letterSpacing: "1px",
+  },
+
+  barWrap: {
+    width: "100%", height: "8px",
+    background: "rgba(255,255,255,0.06)",
+    border: "2px solid #F5C518",
+  },
+
+  barFill: { 
+    height: "100%", 
+    background: "#F5C518",
+    transition: "width 0.4s" 
+  },
+
+  percent: {
+    fontFamily: "monospace", 
+    fontSize: "0.7rem", 
+    color: "#F5C518", 
+    margin: 0, 
+    textAlign: "right",
+  },
+
+  time: { 
+    fontFamily: "monospace", 
+    fontSize: "0.75rem", 
+    color: "#888", 
+    margin: 0,
+  },
+
+  actions: {
+    display: "flex",
+    gap: "8px",
+    marginTop: "4px",
+  },
+
+  btnOpen: {
+    flex: 1,
+    background: "#1B3A8C",
+    color: "#FFF8E7",
+    border: "2px solid #000",
+    fontFamily: "monospace",
+    fontSize: "0.6rem",
+    padding: "8px",
+    cursor: "pointer",
+    letterSpacing: "1px",
+  },
+
+  btnDel: {
+    background: "8B0000",
+    color: "#000",
+    border: "2px solid #000",
+    fontFamily: "monospace",
+    fontSize: "0.8rem",
+    padding: "8px 12px",
+    cursor: "pointer",
   }
 }
