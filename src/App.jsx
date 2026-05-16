@@ -1,30 +1,53 @@
 import Navbar from "./Navbar"
 import CourseCard from "./CourseCard"
+import { useState, useEffect } from "react"
+import { getCourses, addCourse, deleteCourse } from "./api"
 
-export default function App() {
-  return(
-    <>
-      <h1>ProgressTube</h1>
+export default function App(){
 
-      <Navbar
-        page="dashboard"
-        onNavigate={() => {}}
-      />
+  const [page, setPage]       = useState("courses")
+  const [url, setUrl]         = useState("")
+  const [loading, setLoading] = useState(true)
+  const [courses, setCourses] = useState([])
+  const [adding, setAdding]   = useState(false)
+  const [error, setError]     = useState("")
 
-      <CourseCard
-        course={{
-          title: "React Basics",
-          thumbnail: "",
-          type: "playlist",
-          status: "in_progress",
-          completed_percentage: 70,
-          total_videos: 12,
-          total_duration_seconds: 7200,
-          watched_seconds: 3600,
-        }}
-        onDelete={() => {}}
-        onOpen={() => {}}
-      />
-    </>
-  )
+  useEffect( () => {fetchCourses}, [] )
+
+  function fetchCourses(){
+    setLoading(true)
+    setError("")
+
+    try{
+      const data = await getCourses()
+      setCourses(data)
+    }
+    catch{
+      setError("Could not connect to backend. Is FastAPI running?")
+    }
+    finally{
+      setLoading(false)
+    }
+  }
+
+  function handleAdd(){
+    if(!url.trim()) return
+    setAdding(true)
+    setError("")
+
+    try{
+      await addCourse(url.trim())
+      setUrl("")
+      await fetchCourses()
+    }
+    finally{
+      setAdding(false)
+    }
+  }
+
+  function hadleDelete(id){
+    if(!window.confirm("Remove this curse?")) return
+    await deleteCourse(id)
+    await fetchCourses()
+  }
 }
