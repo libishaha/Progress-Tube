@@ -101,7 +101,7 @@ const styles = {
     color: "#FFF8E7",
     fontSize: "0.6rem",
     padding: "3px 8px",
-    FontFamily: "monospace",
+    fontFamily: "monospace",
   },
 
   body: {
@@ -112,7 +112,7 @@ const styles = {
   },
 
   title: {
-    FontFamily: "monospace",
+    fontFamily: "monospace",
     fontWeight: "bold",
     fontSize: "0.9rem",
     color: "#FFF8E7",
@@ -124,7 +124,7 @@ const styles = {
   },
 
   status: {
-    FontFamily: "monospace",
+    fontFamily: "monospace",
     fontSize: "0.55rem",
     padding: "3px 8px",
     border: "1px solid",
@@ -178,7 +178,7 @@ const styles = {
   },
 
   btnDel: {
-    background: "8B0000",
+    background: "#8B0000",
     color: "#000",
     border: "2px solid #000",
     fontFamily: "monospace",
