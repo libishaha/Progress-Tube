@@ -25,12 +25,7 @@ def root():
 
 @app.get("/courses")
 def get_courses():
-    courses = db.query("SELECT * FROM courses ORDER BY created_at DESC")
-    for c in courses:
-        total = c["total_duration_seconds"]
-        watched = c["watched_seconds"]
-        c["completed_percentage"] = round((watched / total * 100) if total > 0 else 0, 1)
-    return courses
+    return db.query("SELECT * FROM courses ORDER BY created_at DESC")
 
 @app.post("/courses")
 def add_courses(req: AddCourseRequest):
@@ -73,12 +68,13 @@ def update_progress(course_id: int, req: UpdateProgressRequest):
     if not courses:
         raise HTTPException(status_code=404, detail="Course not found")
 
-    total = courses["total_duration_seconds"]
-    watched = min(req.watched_seconds, total)
+    total = (courses["total_duration_seconds"] // 60) * 60
+    watched = (min(req.watched_seconds, total) // 60) * 60
+    completed_percentage = round((watched / total) * 100) if total > 0 else 0
 
-    if watched == 0:
+    if completed_percentage == 0:
         status = "not_started"
-    elif watched >= total:
+    elif completed_percentage >= 100:
         status = "completed"
     else:
         status = "in_progress"
@@ -86,8 +82,8 @@ def update_progress(course_id: int, req: UpdateProgressRequest):
     certificate = 1 if status == "completed" else courses["certificate_earned"]
 
     db.execute(
-        "UPDATE courses SET watched_seconds = %s, status = %s, certificate_earned = %s WHERE id = %s",
-        (watched, status, certificate, course_id)
+        "UPDATE courses SET watched_seconds = %s, completed_percentage = %s, status = %s, certificate_earned = %s WHERE id = %s",
+        (watched, completed_percentage, status, certificate, course_id)
     )
 
     if status == "completed" and not courses["certificate_earned"]:

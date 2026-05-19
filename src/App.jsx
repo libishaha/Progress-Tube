@@ -1,16 +1,17 @@
 import Navbar from "./Navbar"
 import CourseCard from "./CourseCard"
+import ProgressModal from "./ProgressModal"
 import { useState, useEffect } from "react"
 import { getCourses, addCourse, deleteCourse } from "./api"
 
 export default function App(){
-
   const [page, setPage]       = useState("courses")
   const [url, setUrl]         = useState("")
   const [loading, setLoading] = useState(true)
   const [courses, setCourses] = useState([])
   const [adding, setAdding]   = useState(false)
   const [error, setError]     = useState("")
+  const [openCourse, setOpenCourse] = useState(null)
 
   useEffect( () => {fetchCourses()}, [] )
 
@@ -64,7 +65,7 @@ export default function App(){
             placeholder="Paste a YouTube video URL"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAdd}
+            onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
           <button style={styles.btnAdd} onClick={handleAdd} disabled={adding}>
             {adding ? "LOADING" : "ADD COURSE"}
@@ -85,13 +86,20 @@ export default function App(){
                   key={c.id}
                   course = {c}
                   onDelete={() => hadleDelete(c.id)}
-                  onOpen={() => alert(`Open course ${c.id}`)}
+                  onOpen={() => setOpenCourse(c)}
                 />
               ))}
             </div>
           )
         }
       </main>
+      {openCourse && (
+        <ProgressModal
+          course={openCourse}
+          onClose={() => setOpenCourse(null)}
+          onUpdated={() => {fetchCourses(); setOpenCourse(null);}}
+        />
+      )}
     </div>
   )
 }
@@ -146,4 +154,5 @@ const styles = {
     gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
     gap: "20px",
   }
+  
 }
