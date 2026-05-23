@@ -83,6 +83,7 @@ def get_playlist_metadata(playlist_id):
         pl["thumbnails"].get("default", {}).get("url", "")
     )
 
+    # Step 1: collect video IDs in playlist order
     video_ids = []
     next_page = None
 
@@ -90,7 +91,7 @@ def get_playlist_metadata(playlist_id):
         params = {
             "key" : API_KEY,
             "playlistId" : playlist_id,
-            "part" : "contentDetails",
+            "part" : "snippet,contentDetails",
             "maxResults" : 50
         }
 
@@ -102,30 +103,57 @@ def get_playlist_metadata(playlist_id):
         data = items_resp.json()
 
         for item in data.get("items", []):
-            video_ids.append(item["contentDetails"]["videoId"])
+            vid_id = item["contentDetails"]["videoId"]
+            # title from snippet.title falls back to empty string
+            vid_title = item.get("snippet", {}).get("title", "")
+            video_ids.append({"video_id": vid_id, "title": vid_title})
 
         next_page = data.get("nextPageToken")
         if not next_page:
             break
-    
-    total_seconds = 0
-    for i in range(0, len(video_ids), 50):
-        batch = video_ids[i:i+50]
+
+    # Step 2: batch-fetch durations (up to 50 per request)
+    duration_map = {}  # video_id -> duration_seconds
+    id_list = [v["video_id"] for v in video_ids]
+    for i in range(0, len(id_list), 50):
+        batch = id_list[i:i+50]
         vids_resp = requests.get(f"{BASE_URL}/videos", params={
             "key": API_KEY,
             "id": ",".join(batch),
-            "part": "contentDetails",
+            "part": "contentDetails,snippet",
         })
         vids_resp.raise_for_status()
         for v in vids_resp.json().get("items", []):
-            total_seconds += parse_duration(v["contentDetails"]["duration"])
+            vid_id = v["id"]
+            duration_map[vid_id] = parse_duration(v["contentDetails"]["duration"])
+            # prefer richer title from videos endpoint if available
+            rich_title = v.get("snippet", {}).get("title", "")
+            if rich_title:
+                for entry in video_ids:
+                    if entry["video_id"] == vid_id:
+                        entry["title"] = rich_title
+                        break
+
+    # Step 3: build enriched video list
+    total_seconds = 0
+    videos = []
+    for pos, entry in enumerate(video_ids, start=1):
+        dur = duration_map.get(entry["video_id"], 0)
+        total_seconds += dur
+        videos.append({
+            "position": pos,
+            "video_id": entry["video_id"],
+            "title": entry["title"] or f"Video {pos}",
+            "duration_seconds": dur,
+        })
 
     return {
         "type": "playlist",
         "title": title,
         "thumbnail": thumbnail,
         "total_duration_seconds": total_seconds,
-        "total_videos": len(video_ids),
+        "total_videos": len(videos),
+        "videos": videos,   # NEW: per-video detail
     }
 
 def fetch_youtube_metadata(url):
