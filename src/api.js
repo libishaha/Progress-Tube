@@ -1,5 +1,3 @@
-// api.js — all communication with FastAPI backend
-
 const BASE_URL = "http://localhost:8000"
 
 async function apiFetch(path, options = {}) {
@@ -19,11 +17,6 @@ export const updateProgress   = (id, watched)           => apiFetch(`/courses/${
 export const getDashboard     = ()                      => apiFetch("/dashboard")
 export const getTrophies      = ()                      => apiFetch("/trophies")
 
-// ── Playlist-specific ──────────────────────────────────────────────────────
-export const getPlaylistVideos     = (courseId)          => apiFetch(`/courses/${courseId}/videos`)
-export const rescanPlaylist        = (courseId)          => apiFetch(`/courses/${courseId}/rescan`, { method: "POST" })
-export const bulkUpdateVideoProgress = (courseId, updates) =>
-  apiFetch(`/courses/${courseId}/videos/bulk-progress`, {
-    method: "PUT",
-    body: JSON.stringify({ updates }),
-  })
+export const getPlaylistVideos     = (courseId)            => apiFetch(`/courses/${courseId}/videos`)
+export const rescanPlaylist        = (courseId)            => apiFetch(`/courses/${courseId}/rescan`, { method: "POST" })
+export const bulkUpdateVideoProgress = (courseId, updates) => apiFetch(`/courses/${courseId}/videos/bulk-progress`, { method: "PUT", body: JSON.stringify({ updates }) })

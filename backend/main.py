@@ -14,10 +14,6 @@ app.add_middleware(
     allow_methods = ["*"]
 )
 
-# ─────────────────────────────────────────────
-# Request models
-# ─────────────────────────────────────────────
-
 class AddCourseRequest(BaseModel):
     youtube_url: str
 
@@ -31,12 +27,7 @@ class VideoProgressItem(BaseModel):
 class BulkProgressRequest(BaseModel):
     updates: List[VideoProgressItem]
 
-# ─────────────────────────────────────────────
-# Helpers
-# ─────────────────────────────────────────────
-
 def _upsert_playlist_videos(course_id: int, videos: list):
-    """Insert or update rows in playlist_videos for a given course."""
     for v in videos:
         db.execute(
             """INSERT INTO playlist_videos
@@ -283,10 +274,6 @@ def bulk_update_video_progress(course_id: int, req: BulkProgressRequest):
     # Recalculate course-level totals
     result = _recalc_course_from_videos(course_id)
     return result
-
-# ─────────────────────────────────────────────
-# Other existing routes
-# ─────────────────────────────────────────────
 
 @app.delete("/courses/{course_id}")
 def delete_course(course_id: int):
