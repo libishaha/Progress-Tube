@@ -12,9 +12,18 @@ async function apiFetch(path, options = {}) {
   return data
 }
 
-export const getCourses    = ()              => apiFetch("/courses")
-export const addCourse     = (url)           => apiFetch("/courses", { method: "POST", body: JSON.stringify({ youtube_url: url }) })
-export const deleteCourse  = (id)            => apiFetch(`/courses/${id}`, { method: "DELETE" })
-export const updateProgress = (id, watched)  => apiFetch(`/courses/${id}/progress`, { method: "PUT", body: JSON.stringify({ watched_seconds: watched }) })
-export const getDashboard  = ()              => apiFetch("/dashboard")
-export const getTrophies   = ()              => apiFetch("/trophies")
+export const getCourses       = ()                      => apiFetch("/courses")
+export const addCourse        = (url)                   => apiFetch("/courses", { method: "POST", body: JSON.stringify({ youtube_url: url }) })
+export const deleteCourse     = (id)                    => apiFetch(`/courses/${id}`, { method: "DELETE" })
+export const updateProgress   = (id, watched)           => apiFetch(`/courses/${id}/progress`, { method: "PUT", body: JSON.stringify({ watched_seconds: watched }) })
+export const getDashboard     = ()                      => apiFetch("/dashboard")
+export const getTrophies      = ()                      => apiFetch("/trophies")
+
+// ── Playlist-specific ──────────────────────────────────────────────────────
+export const getPlaylistVideos     = (courseId)          => apiFetch(`/courses/${courseId}/videos`)
+export const rescanPlaylist        = (courseId)          => apiFetch(`/courses/${courseId}/rescan`, { method: "POST" })
+export const bulkUpdateVideoProgress = (courseId, updates) =>
+  apiFetch(`/courses/${courseId}/videos/bulk-progress`, {
+    method: "PUT",
+    body: JSON.stringify({ updates }),
+  })
